@@ -4,7 +4,10 @@ require(ROOT . "model/GuestModel.php");
 
 function index()
 {
-	render("guest/index", array(
-		'guests' => getAllGuest()
-	));
+	$guests = getAllGuest();
+	render("guest/index", $guests);
+
+	// render("guest/index", array(
+	// 	'guests' => getAllGuest()
+	// ));
 }

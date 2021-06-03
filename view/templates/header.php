@@ -13,9 +13,20 @@
 </head>
 <body>
 <div id="container">
-<nav>
-	<ul>
+	<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+		<a class="navbar-brand" href="#">Manage</a>
+			<div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+					<div class="navbar-nav">
+						<a class="nav-item nav-link active"><li><a href="<?=URL?>home/index">Home</a></li></a>
+						<a class="nav-item nav-link"><li><a href="<?=URL?>guest/index">Reserveren</a></li></a>
+					</div>
+			</div>
+	</nav>
+	<div class="container pt-5">
+	<br>
+
+
+	<!-- <ul>
 		<li><a href="<?=URL?>home/index">Home</a></li>
 		<li><a href="<?=URL?>guest/index">Guest</a></li>
-	</ul>
-</nav>
+	</ul> -->

@@ -8,7 +8,7 @@
 			$conn=openDatabaseConnection();
 		
 			// Zet de query klaar door middel van de prepare method
-			$stmt = $conn->prepare("SELECT * FROM guest");
+			$stmt = $conn->prepare("SELECT * FROM reservering");
 	
 			// Voer de query uit
 			$stmt->execute();

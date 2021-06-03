@@ -1,4 +1,4 @@
 <div class="container">
- <h1>Welkom bij het php-framework.</h1>
- <p>Je bent nu in home/index.</p>
+ <h1>Geplande reserveringen</h1>
+ <p>reservering 1</p>
 </div>

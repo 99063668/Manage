@@ -2,20 +2,22 @@
 	// maak een overzicht lijst van ALLE personen
 	$guests = getAllGuest();
 ?>
-<h1>Overzicht van bezoekers</h1>
+<h1>Een reservering plannen</h1>
 <?php
 	foreach ($guests as $guest) {
 ?>
-	<ul>
+	<!-- <ul>
 		<li>
 			<span><?=$guest["name"]?> is <?=$guest["age"]?> jaar</span>
 		</li>
-	</ul>
+	</ul> -->
 
 <?php	
 	}
 ?>
-<a href="/guest/update/1">Wijzigen</a> <a href="/guest/delete/1">Verwijderen</a>
+<a href="/guest/update/1">Wijzigen</a> <br>
+<a href="/guest/delete/1">Verwijderen</a> <br>
+<a href="/guest/add/1">Toevoegen</a>
 
 <?php
 // de opbouw van de link bepaald welke method in welke controller aangeroepen wordt.

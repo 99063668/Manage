@@ -2,7 +2,7 @@
    require(ROOT . "model/HorseModel.php");
 
    //Laad de horse + pony page in
-   function indexHorse() {
+   function index() {
         $horses = getAllHorse();
         render("horse/index", $horses);
     }
@@ -13,15 +13,9 @@
         render("horse/index", $ponys);
     }
 
-    //Laad de home page in
-    function indexHome() {
-        render("home/index");	
+     //Laad de add page in
+     function addHorses() {
+        $horse = addHorse();
+        render("horse/add", $horse);
     }
-
-    //Laat de guest page in
-    function indexGuest() {
-        $guests = getAllGuest();
-        render("guest/index", $guests);
-    }
-    
 ?>

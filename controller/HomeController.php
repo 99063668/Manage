@@ -1,5 +1,7 @@
 <?php
+	require(ROOT . "model/HomeModel.php");
 
-function index() {
-	render("home/index");	
-}
+	//Laat de home page in
+	function index() {
+		render("home/index");	
+	}

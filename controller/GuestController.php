@@ -1,8 +1,8 @@
 <?php
+	require(ROOT . "model/GuestModel.php");
 
-require(ROOT . "model/GuestModel.php");
-
-function index() {
-	$guests = getAllGuest();
-	render("guest/index", $guests);
-}
+	//Laat de guest page in
+	function index() {
+		$guests = getAllGuest();
+		render("guest/index", $guests);
+	}

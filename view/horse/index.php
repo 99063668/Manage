@@ -1,10 +1,19 @@
 <?php
+    if(isset($_GET["id"])){
+        $horse = getTable("horse", $_GET["id"]);
+        if(!$horse){
+            echo "Paard bestaat niet";
+        }
+    }else{
+        echo "Paard bestaat niet";
+    }
+
     $horses = getAllHorse();
     $ponys = getAllPony();
 ?>
 
 <h1>Paarden beheren</h1>
-<a href="/horse/add/1">Toevoegen</a>
+<a href="<?=URL?>horse/openForm">Toevoegen</a>
 <table class="table">
     <thead>
         <tr>
@@ -24,7 +33,13 @@
             <td><?=$horse["horse_breed"]?></td>
             <td><?=$horse["horse_age"]?></td>
 			<td><?=$horse["jump"]?></td>
-			<td><a href="/horse/update/1">Wijzigen</a> / <a href="/horse/delete/1">Verwijderen</a></td>
+			<td><a href="/horse/update/1">Wijzigen</a> / </td> 
+            <!-- <a href="/horse/delete/1">Verwijderen</a></td> -->
+
+            <td><form action="<?=URL?>horse/openDelete?id=<?= $horse["id"]?>" method="post">
+            <button class="btn btn-primary btn-sm" type="submit" name="Delete" value="Delete">Verwijderen</button>
+            </form></td>
+
         </tr>
         <?php
             }
@@ -35,7 +50,7 @@
 <br>
 
 <h1>Pony's beheren</h1>
-<a href="/horse/addPony/1">Toevoegen</a>
+<a href="<?=URL?>horse/openForm2">Toevoegen</a>
 <table class="table">
     <thead>
         <tr>

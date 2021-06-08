@@ -4,7 +4,7 @@
 ?>
 
 <h1>Paarden beheren</h1>
-<a href="/guest/add/1">Toevoegen</a>
+<a href="/horse/add/1">Toevoegen</a>
 <table class="table">
     <thead>
         <tr>

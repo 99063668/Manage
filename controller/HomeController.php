@@ -1,6 +1,5 @@
 <?php
 
-function index()
-{
+function index() {
 	render("home/index");	
 }

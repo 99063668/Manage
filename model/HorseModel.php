@@ -2,14 +2,14 @@
 //Functions voor de horse page
 	//haalt 1 paard/pony op uit de database
 	function getTable($table, $id){
-		$conn = openDatabase();
+		$conn = openDatabaseConnection();
 
 		$id = intval($id);
 		if (($table == "horse" || $table == "pony") && isset($id) && !empty($id) && is_numeric($id)) {
-			$query = $conn->prepare("SELECT * FROM `$table` WHERE id = :id");
-			$query->bindParam(":id", $id);
-			$query->execute();
-			$result = $query->fetch(PDO::FETCH_ASSOC);
+			$stmt = $conn->prepare("SELECT * FROM `$table` WHERE id = :id");
+			$stmt->bindParam(":id", $id);
+			$stmt->execute();
+			$result = $stmt->fetch(PDO::FETCH_ASSOC);
 
 			return $result;
 		}
@@ -70,7 +70,33 @@
                 echo "bij het invoegen in de database was niet alle data beschikbaar";
             }
         }else{
-            echo "error empty post game bij function controle.";
+            echo "error empty post game bij function controle horse.";
+        }
+    }
+
+    //Voegt een pony toe aan de database
+	function addPony($data){
+        $conn = openDatabaseConnection();
+        $allExist = checkArrayExist($data, $keys = array("pony_name", "pony_breed", "pony_age", "height"));
+
+        if(!empty($data) && isset($data)){
+            if ($allExist) {
+                try {
+                    $stmt = $conn->prepare("INSERT INTO pony(pony_name, pony_breed, pony_age, height) VALUES (:pony_name, :pony_breed, :pony_age, :height)");
+                    $stmt->bindParam(":pony_name", $data["pony_name"]);
+                    $stmt->bindParam(":pony_breed", $data["pony_breed"]);
+                    $stmt->bindParam(":pony_age", $data["pony_age"]);
+                    $stmt->bindParam(":height", $data["height"]);
+                    $stmt->execute();
+                }
+                catch(PDOException $e){
+                    echo "Connection failed: " . $e->getMessage();
+                }
+            } else{
+                echo "bij het invoegen in de database was niet alle data beschikbaar";
+            }
+        }else{
+            echo "error empty post game bij function controle pony.";
         }
     }
 
@@ -79,15 +105,19 @@
         $conn = openDatabaseConnection();
         $id = intval($id);
         $check = getTable("horse", $id);
+            if (!empty($id) && isset($id) && is_numeric($id) && !empty($check) && isset($check)){
+                try {
+                    $stmt = $conn->prepare("DELETE FROM horse WHERE id = :id");
+                    $stmt->bindParam(":id", $id);
+                    $stmt->execute();
+                }
+                catch(PDOException $e){
+                    echo "Connection failed: " . $e->getMessage();
+                }   
+            } 
+        }
 
-        if (!empty($id) && isset($id) && is_numeric($id) && !empty($check) && isset($check)){
-            $stmt = $conn->prepare("DELETE FROM horse WHERE id = :id");
-            $stmt->bindParam(":id", $id);
-            $stmt->execute(); 
-        } 
-    }
-
-	//Controlleert de input
+	//Controlleert de input van paarden
 	function controle(){
         $data = [];
 
@@ -129,6 +159,48 @@
         return $data;
     }
 
+    //Controlleert de input van pony's
+	function controle2(){
+        $data = [];
+
+        if(!empty($_POST["pony_name"])){
+            $pony_name = trimdata($_POST["pony_name"]);
+            if(!preg_match("/^[a-zA-Z-' ]*$/", $pony_name)){
+                echo("Alleen letters en spaties zijn toegestaan!");
+            }else{
+                $data["pony_name"] = $pony_name;
+            }
+        }
+
+        if(!empty($_POST["pony_breed"])){
+            $pony_breed = trimdata($_POST["pony_breed"]);
+            if(!preg_match("/^[a-zA-Z-' , ]*$/", $pony_breed)){
+                echo("Alleen letters en spaties zijn toegestaan!");
+            }else{
+                $data["pony_breed"] = $pony_breed;
+            }
+        }
+		
+		if(!empty($_POST["pony_age"])){
+            $pony_age = trimdata($_POST["pony_age"]);
+            if(!preg_match("/[0-9]/", $pony_age)){
+                echo("Alleen cijfers zijn toegestaan!");
+            }else{
+                $data["pony_age"] = $pony_age;
+            }
+        }
+
+		if(!empty($_POST["height"])){
+            $height = trimdata($_POST["height"]);
+            if(!preg_match("/[0-9]/", $height)){
+                echo("Alleen letters en spaties zijn toegestaan!");
+            }else{
+                $data["height"] = $height;
+            }
+        }
+        return $data;
+    }
+
 	 //Controleert de input op verboden characters
      function trimdata($data){
         $data = trim($data);
@@ -137,8 +209,7 @@
         return $data;
     }
 
-    //array = ["hoi", "dewi"];
-    //keys = ["hond", "dewi"];
+   //..
     function checkArrayExist($array, $keys = array("horse_name", "horse_breed", "horse_age", "jump")){
         $allExist = true;
         foreach ($keys as $entry) {

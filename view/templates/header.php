@@ -19,6 +19,7 @@
 					<div class="navbar-nav">
 						<a class="nav-item nav-link active"><li><a href="<?=URL?>home/index">Home</a></li></a>
 						<a class="nav-item nav-link"><li><a href="<?=URL?>guest/index">Reserveren</a></li></a>
+						<a class="nav-item nav-link"><li><a href="<?=URL?>horse/index">Beheer</a></li></a>
 					</div>
 			</div>
 	</nav>

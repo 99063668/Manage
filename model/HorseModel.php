@@ -1,4 +1,5 @@
 <?php
+//Functions voor de horse page
 	//haalt 1 paard/pony op uit de database
 	function getTable($table, $id){
 		$conn = openDatabase();
@@ -50,20 +51,26 @@
 	//Voegt een paard toe aan de database
 	function addHorse($data){
         $conn = openDatabaseConnection();
+        $allExist = checkArrayExist($data);
 
         if(!empty($data) && isset($data)){
-            if (isset($data["horse_name"]) && !empty($data["horse_name"]) && isset($data["horse_breed"]) && !empty($data["horse_breed"]) && isset($data["horse_age"]) && !empty($data["horse_age"]) && isset($data["jump"]) && !empty($data["jump"])) {
-                $stmt = $conn->prepare("INSERT INTO plannings(horse_name, horse_breed, horse_age, jump, players) VALUES (:horse_name, :horse_breed, :horse_age, :jump)");
-                $stmt->bindParam(":horse_name", $data["horse_name"]);
-                $stmt->bindParam(":horse_breed", $data["horse_breed"]);
-                $stmt->bindParam(":horse_age", $data["horse_age"]);
-                $stmt->bindParam(":jump", $data["jump"]);
-                $stmt->execute();
-
-                return $data;
+            if ($allExist) {
+                try {
+                    $stmt = $conn->prepare("INSERT INTO horse(horse_name, horse_breed, horse_age, jump) VALUES (:horse_name, :horse_breed, :horse_age, :jump)");
+                    $stmt->bindParam(":horse_name", $data["horse_name"]);
+                    $stmt->bindParam(":horse_breed", $data["horse_breed"]);
+                    $stmt->bindParam(":horse_age", $data["horse_age"]);
+                    $stmt->bindParam(":jump", $data["jump"]);
+                    $stmt->execute();
+                }
+                catch(PDOException $e){
+                    echo "Connection failed: " . $e->getMessage();
+                }
+            } else{
+                echo "bij het invoegen in de database was niet alle data beschikbaar";
             }
         }else{
-            echo("error empty post game bij function controle.");
+            echo "error empty post game bij function controle.";
         }
     }
 
@@ -122,18 +129,42 @@
         return $data;
     }
 
-	//..
-	if($_SERVER["REQUEST_METHOD"] == "POST"){
-        if (!empty($_POST["SubmitBtn"])) {
-            $input = controle();
-            addHorse($input);
-		} elseif (!empty($_POST["Delete"])) {
-            //Show confirm form
-        } elseif (!empty($_POST["Delete2"])) {
-            deleteGame($_GET["id"]);
-            header("location: index.php");
-        } elseif (!empty($_POST["Delete3"])) {
-            header("location: index.php");
+	 //Controleert de input op verboden characters
+     function trimdata($data){
+        $data = trim($data);
+        $data = stripslashes($data);
+        $data = htmlspecialchars($data);
+        return $data;
+    }
+
+    //array = ["hoi", "dewi"];
+    //keys = ["hond", "dewi"];
+    function checkArrayExist($array, $keys = array("horse_name", "horse_breed", "horse_age", "jump")){
+        $allExist = true;
+        foreach ($keys as $entry) {
+            if(!isset($array[$entry]) || empty($array[$entry])){
+                $allExist = false;
+                break;
+            }
         }
+        return $allExist;
+    }
+
+
+//Functions voor de guest + home page
+//Haalt alle guest op uit de databse
+    function getAllGuest(){
+		try {
+			$conn=openDatabaseConnection();
+			$stmt = $conn->prepare("SELECT * FROM reservering");
+			$stmt->execute();
+			$result = $stmt->fetchAll();
+	
+		}
+		catch(PDOException $e){
+			echo "Connection failed: " . $e->getMessage();
+		}
+		$conn = null;
+		return $result;
 	}
 ?>

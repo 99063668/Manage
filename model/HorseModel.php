@@ -117,6 +117,22 @@
             } 
         }
 
+          //Edit een paard uit de database
+        function editHorse($data){
+            $conn = openDatabaseConnection();
+            $data["id"] = intval($data["id"]);
+            $check = getTable("horse", $data["id"]);
+
+            if(!empty($data["id"]) && isset($data["id"]) && is_numeric($data["id"]) && !empty($check) && isset($check)){
+                $query = $conn->prepare("UPDATE plannings SET horse_breed=:horse_breed, horse_age=:horse_age, jump=:jump  WHERE id=:id");
+                $query->bindParam(":horse_breed", $data["horse_breed"]);
+                $query->bindParam(":horse_age",  $data["horse_age"]);
+                $query->bindParam(":jump",  $data["jump"]);
+                $query->bindParam(":id", $data["id"]);
+                $query->execute(); 
+            }  
+        }
+
 	//Controlleert de input van paarden
 	function controle(){
         $data = [];
@@ -238,4 +254,83 @@
 		$conn = null;
 		return $result;
 	}
+
+    //Voegt een reservering toe aan de database
+	function addReservering($data){
+        $conn = openDatabaseConnection();
+        $allExist = checkArrayExist($data, $keys = array("guest_name", "times", "horse", "price"));
+
+        if(!empty($data) && isset($data)){
+            if ($allExist) {
+                try {
+                    $stmt = $conn->prepare("INSERT INTO reservering(guest_name, times, horse, price) VALUES (:guest_name, :times, :horse, :price)");
+                    $stmt->bindParam(":guest_name", $data["guest_name"]);
+                    $stmt->bindParam(":times", $data["times"]);
+                    $stmt->bindParam(":horse", $data["horse"]);
+                    $stmt->bindParam(":price", $data["price"]);
+                    $stmt->execute();
+                }
+                catch(PDOException $e){
+                    echo "Connection failed: " . $e->getMessage();
+                }
+            } else{
+                echo "bij het invoegen in de database was niet alle data beschikbaar";
+            }
+        }else{
+            echo "error empty post game bij function controle reservering.";
+        }
+    }
+
+      //Controlleert de input van reserveringen
+	function controle3(){
+        $data = [];
+
+        if(!empty($_POST["guest_name"])){
+            $guest_name = trimdata($_POST["guest_name"]);
+            if(!preg_match("/^[a-zA-Z-' ]*$/", $guest_name)){
+                echo("Alleen letters en spaties zijn toegestaan!");
+            }else{
+                $data["guest_name"] = $guest_name;
+            }
+        }
+
+        if(!empty($_POST["times"])){
+            $times = trimdata($_POST["times"]);
+            if(!preg_match("/^(?:2[0-3]|[01][0-9]):[0-5][0-9]$/", $times)){
+                echo("Alleen letters en spaties zijn toegestaan!");
+            }else{
+                $data["times"] = $times;
+            }
+        }
+		
+		if(!empty($_POST["horse"])){
+            $horse = trimdata($_POST["horse"]);
+            if(!preg_match("/^[a-zA-Z-' , ]*$/", $horse)){
+                echo("Alleen letters en spaties zijn toegestaan!");
+            }else{
+                $data["horse"] = $horse;
+            }
+        }
+
+		if(!empty($_POST["price"])){
+            $price = trimdata($_POST["price"]);
+            if(!preg_match("/[0-9]/", $price)){
+                echo("Alleen cijfers zijn toegestaan!");
+            }else{
+                $data["price"] = $price;
+            }
+        }
+        return $data;
+    }
+
+     //Telt de game prijs bij elkaar op
+    //  function optellenPrijs($prijs1, $prijs2){
+    //     $prijs1 = intval($prijs1);
+    //     $prijs2 = intval($prijs2);
+
+    //     if(!empty($prijs1) && !empty($prijs2) && is_numeric($prijs1) && is_numeric($prijs2)){
+    //         $duration_game = $prijs1 + $prijs2;
+    //         return $price;
+    //     }
+    // }
 ?>

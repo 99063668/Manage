@@ -13,9 +13,18 @@
         render("horse/index", $ponys);
     }
 
-     //Laad de add page in
-     function addHorses() {
-        $horse = addHorse();
-        render("horse/add", $horse);
+    //Laad de add page in
+    function openForm() {
+        render("horse/add");
     }
+
+    //Laad de add page in
+    function addHorses() {
+        if($_SERVER["REQUEST_METHOD"] == "POST"){
+            $data = controle();
+            addHorse($data);
+            index();
+        }
+    }
+    
 ?>

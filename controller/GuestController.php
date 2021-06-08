@@ -1,5 +1,5 @@
 <?php
-	require(ROOT . "model/GuestModel.php");
+	require(ROOT . "model/HorseModel.php");
 
 	//Laat de guest page in
 	function index() {

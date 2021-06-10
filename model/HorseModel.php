@@ -117,6 +117,23 @@
             } 
         }
 
+        // Verwijderd 1 pony uit de database
+       function deletePony($id){
+        $conn = openDatabaseConnection();
+        $id = intval($id);
+        $check = getTable("pony", $id);
+            if (!empty($id) && isset($id) && is_numeric($id) && !empty($check) && isset($check)){
+                try {
+                    $stmt = $conn->prepare("DELETE FROM pony WHERE id = :id");
+                    $stmt->bindParam(":id", $id);
+                    $stmt->execute();
+                }
+                catch(PDOException $e){
+                    echo "Connection failed: " . $e->getMessage();
+                }   
+            } 
+        }
+
           //Edit een paard uit de database
         function editHorse($data){
             $conn = openDatabaseConnection();
@@ -255,7 +272,7 @@
 		return $result;
 	}
 
-    //Haalt alle guest op uit de databse
+    //Haalt alle guest op uit de database
     function AllGuest(){
 		try {
 			$conn=openDatabaseConnection();

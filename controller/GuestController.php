@@ -21,9 +21,9 @@
         }
     }
 
-       //laad de delete page
+    //laad de delete page
     function openDelete() {
-        render("home/delete");
+        render("guest/delete");
     }
 
     //laad de delete function in
@@ -37,5 +37,19 @@
             } elseif (!empty($_POST["Delete3"])) {
                 index();
             }
+        }
+    }
+
+    //Laad de edit page in
+    function editForm() {
+        render("guest/update");
+    }
+    
+    //laad de edit function
+    function editReserverings(){
+        if(!empty($_POST["SubmitBtn2"])) {
+        $data = controle();
+        editReservering($data);
+        index();
         }
     }

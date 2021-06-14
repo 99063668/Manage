@@ -5,7 +5,7 @@
 		$conn = openDatabaseConnection();
 
 		$id = intval($id);
-		if (($table == "horse" || $table == "pony" || $table == "guest") && isset($id) && !empty($id) && is_numeric($id)) {
+		if (($table == "horse" || $table == "pony" || $table == "guest" || $table == "reservering") && isset($id) && !empty($id) && is_numeric($id)) {
 			$stmt = $conn->prepare("SELECT * FROM `$table` WHERE id = :id");
 			$stmt->bindParam(":id", $id);
 			$stmt->execute();
@@ -136,15 +136,15 @@
             } 
         }
 
-        // Verwijderd 1 guest uit de database
+        // Verwijderd 1 reservering uit de database
        function deleteGuest($id){
             $conn = openDatabaseConnection();
             $id = intval($id);
-            $check = getTable("guest", $id);
+            $check = getTable("reservering", $id);
 
             if (!empty($id) && isset($id) && is_numeric($id) && !empty($check) && isset($check)){
                 try {
-                    $stmt = $conn->prepare("DELETE FROM guest WHERE id = :id");
+                    $stmt = $conn->prepare("DELETE FROM reservering WHERE id = :id");
                     $stmt->bindParam(":id", $id);
                     $stmt->execute();
                 }
@@ -153,6 +153,24 @@
                 }   
             } 
         }
+
+        // Verwijderd 1 guest uit de database
+       function deleteHome($id){
+        $conn = openDatabaseConnection();
+        $id = intval($id);
+        $check = getTable("guest", $id);
+
+        if (!empty($id) && isset($id) && is_numeric($id) && !empty($check) && isset($check)){
+            try {
+                $stmt = $conn->prepare("DELETE FROM guest WHERE id = :id");
+                $stmt->bindParam(":id", $id);
+                $stmt->execute();
+            }
+            catch(PDOException $e){
+                echo "Connection failed: " . $e->getMessage();
+            }   
+        } 
+    }
 
         //Edit een paard uit de database
         function editHorse($data){
@@ -362,11 +380,123 @@
                 echo "bij het invoegen in de database was niet alle data beschikbaar";
             }
         }else{
-            echo "error empty post game bij function controle reservering.";
+            echo "error empty post reservering bij function controle reservering.";
         }
     }
 
-      //Controlleert de input van reserveringen
+     //Edit een reservering uit de database
+     function editReservering($data){
+        $conn = openDatabaseConnection();
+        $data["id"] = intval($data["id"]);
+        $check = getTable("reservering", $data["id"]);
+       
+        if(!empty($data["id"]) && isset($data["id"]) && is_numeric($data["id"]) && !empty($check) && isset($check)){
+            $query = $conn->prepare("UPDATE reservering SET times=:times, horse=:horse WHERE id=:id");
+            $query->bindParam(":times",  $data["times"]);
+            $query->bindParam(":horse",  $data["horse"]);
+            $query->bindParam(":id", $data["id"]);
+            $query->execute(); 
+        }  
+    }
+
+     //Edit een guest uit de database
+     function editGuest($data){
+        $conn = openDatabaseConnection();
+        $data["id"] = intval($data["id"]);
+        $check = getTable("guest", $data["id"]);
+        
+        var_dump($data);
+
+        if(!empty($data["id"]) && isset($data["id"]) && is_numeric($data["id"]) && !empty($check) && isset($check)){
+            $query = $conn->prepare("UPDATE guest SET adres=:adres, phone=:phone WHERE id=:id");
+            $query->bindParam(":adres",  $data["adres"]);
+            $query->bindParam(":phone",  $data["phone"]);
+            $query->bindParam(":id", $data["id"]);
+            $query->execute(); 
+        }  
+    }
+
+
+
+    //Voegt een beszoeker toe aan de database
+	function addHome($data){
+        $conn = openDatabaseConnection();
+        $allExist = checkArrayExist($data, $keys = array("name", "adres", "phone", "numbers"));
+
+        if(!empty($data) && isset($data)){
+            if ($allExist) {
+                try {
+                    $stmt = $conn->prepare("INSERT INTO guest(name, adres, phone, numbers) VALUES (:name, :adres, :phone, :numbers)");
+                    $stmt->bindParam(":name", $data["name"]);
+                    $stmt->bindParam(":adres", $data["adres"]);
+                    $stmt->bindParam(":phone", $data["phone"]);
+                    $stmt->bindParam(":numbers", $data["numbers"]);
+                    $stmt->execute();
+                }
+                catch(PDOException $e){
+                    echo "Connection failed: " . $e->getMessage();
+                }
+            } else{
+                echo "bij het invoegen in de database was niet alle data beschikbaar";
+            }
+        }else{
+            echo "error empty post guest bij function controle home.";
+        }
+    }
+
+
+    //Controlleert de input van guest
+	function controle4(){
+        $data = [];
+        
+        if(!empty($_POST["id"])){
+            $id = trimdata($_POST["id"]);
+            if(empty($_POST["id"])){
+                echo("Er is geen id meegegeven!");
+            }else{
+                $data["id"] = $id;
+            }
+        }
+
+        if(!empty($_POST["name"])){
+            $name = trimdata($_POST["name"]);
+            if(!preg_match("/^[a-zA-Z-' ]*$/", $name)){
+                echo("Alleen letters en spaties zijn toegestaan!");
+            }else{
+                $data["name"] = $name;
+            }
+        }
+
+        if(!empty($_POST["adres"])){
+            $adres = trimdata($_POST["adres"]);
+            if(!preg_match("/[A-Za-z0-9]+/", $adres)){
+                echo("Alleen letters en spaties zijn toegestaan!");
+            }else{
+                $data["adres"] = $adres;
+            }
+        }
+		
+		if(!empty($_POST["phone"])){
+            $phone = trimdata($_POST["phone"]);
+            if(!preg_match("/[0-9]/", $phone)){
+                echo("Alleen nummers zijn toegestaan!");
+            }else{
+                $data["phone"] = $phone;
+            }
+        }
+
+		if(!empty($_POST["numbers"])){
+            $numbers = trimdata($_POST["numbers"]);
+            if(!preg_match("/[0-9]/", $numbers)){
+                echo("Alleen nummers zijn toegestaan!");
+            }else{
+                $data["numbers"] = $numbers;
+            }
+        }
+        return $data;
+    }
+
+     //Controlleert de input van reserveringen
 	function controle3(){
         $data = [];
 

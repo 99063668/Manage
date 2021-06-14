@@ -5,7 +5,7 @@
 		$conn = openDatabaseConnection();
 
 		$id = intval($id);
-		if (($table == "horse" || $table == "pony") && isset($id) && !empty($id) && is_numeric($id)) {
+		if (($table == "horse" || $table == "pony" || $table == "guest") && isset($id) && !empty($id) && is_numeric($id)) {
 			$stmt = $conn->prepare("SELECT * FROM `$table` WHERE id = :id");
 			$stmt->bindParam(":id", $id);
 			$stmt->execute();
@@ -102,9 +102,10 @@
 
        // Verwijderd 1 paard uit de database
        function deleteHorse($id){
-        $conn = openDatabaseConnection();
-        $id = intval($id);
-        $check = getTable("horse", $id);
+            $conn = openDatabaseConnection();
+            $id = intval($id);
+            $check = getTable("horse", $id);
+
             if (!empty($id) && isset($id) && is_numeric($id) && !empty($check) && isset($check)){
                 try {
                     $stmt = $conn->prepare("DELETE FROM horse WHERE id = :id");
@@ -119,9 +120,10 @@
 
         // Verwijderd 1 pony uit de database
        function deletePony($id){
-        $conn = openDatabaseConnection();
-        $id = intval($id);
-        $check = getTable("pony", $id);
+            $conn = openDatabaseConnection();
+            $id = intval($id);
+            $check = getTable("pony", $id);
+
             if (!empty($id) && isset($id) && is_numeric($id) && !empty($check) && isset($check)){
                 try {
                     $stmt = $conn->prepare("DELETE FROM pony WHERE id = :id");
@@ -134,17 +136,49 @@
             } 
         }
 
-          //Edit een paard uit de database
+        // Verwijderd 1 guest uit de database
+       function deleteGuest($id){
+            $conn = openDatabaseConnection();
+            $id = intval($id);
+            $check = getTable("guest", $id);
+
+            if (!empty($id) && isset($id) && is_numeric($id) && !empty($check) && isset($check)){
+                try {
+                    $stmt = $conn->prepare("DELETE FROM guest WHERE id = :id");
+                    $stmt->bindParam(":id", $id);
+                    $stmt->execute();
+                }
+                catch(PDOException $e){
+                    echo "Connection failed: " . $e->getMessage();
+                }   
+            } 
+        }
+
+        //Edit een paard uit de database
         function editHorse($data){
             $conn = openDatabaseConnection();
             $data["id"] = intval($data["id"]);
-            $check = getTable("horse", $data["id"]);
-
+            $check = getTable("horse", $data["id"]);;
+           
             if(!empty($data["id"]) && isset($data["id"]) && is_numeric($data["id"]) && !empty($check) && isset($check)){
-                $query = $conn->prepare("UPDATE plannings SET horse_breed=:horse_breed, horse_age=:horse_age, jump=:jump  WHERE id=:id");
-                $query->bindParam(":horse_breed", $data["horse_breed"]);
+                $query = $conn->prepare("UPDATE horse SET horse_age=:horse_age, jump=:jump  WHERE id=:id");
                 $query->bindParam(":horse_age",  $data["horse_age"]);
                 $query->bindParam(":jump",  $data["jump"]);
+                $query->bindParam(":id", $data["id"]);
+                $query->execute(); 
+            }  
+        }
+
+         //Edit een pony uit de database
+         function editPony($data){
+            $conn = openDatabaseConnection();
+            $data["id"] = intval($data["id"]);
+            $check = getTable("pony", $data["id"]);;
+           
+            if(!empty($data["id"]) && isset($data["id"]) && is_numeric($data["id"]) && !empty($check) && isset($check)){
+                $query = $conn->prepare("UPDATE pony SET pony_age=:pony_age, height=:height  WHERE id=:id");
+                $query->bindParam(":pony_age",  $data["pony_age"]);
+                $query->bindParam(":height",  $data["height"]);
                 $query->bindParam(":id", $data["id"]);
                 $query->execute(); 
             }  
@@ -153,6 +187,15 @@
 	//Controlleert de input van paarden
 	function controle(){
         $data = [];
+
+        if(!empty($_POST["id"])){
+            $id = trimdata($_POST["id"]);
+            if(empty($_POST["id"])){
+                echo("Er is geen id meegegeven!");
+            }else{
+                $data["id"] = $id;
+            }
+        }
 
         if(!empty($_POST["horse_name"])){
             $horse_name = trimdata($_POST["horse_name"]);
@@ -195,6 +238,15 @@
     //Controlleert de input van pony's
 	function controle2(){
         $data = [];
+
+        if(!empty($_POST["id"])){
+            $id = trimdata($_POST["id"]);
+            if(empty($_POST["id"])){
+                echo("Er is geen id meegegeven!");
+            }else{
+                $data["id"] = $id;
+            }
+        }
 
         if(!empty($_POST["pony_name"])){
             $pony_name = trimdata($_POST["pony_name"]);

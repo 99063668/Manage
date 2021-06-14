@@ -5,3 +5,5 @@
 	function index() {
 		render("home/index");	
 	}
+
+	

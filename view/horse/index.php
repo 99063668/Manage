@@ -1,19 +1,10 @@
 <?php
-    if(isset($_GET["id"])){
-        $horse = getTable("horse", $_GET["id"]);
-        if(!$horse){
-            echo "Paard bestaat niet";
-        }
-    }else{
-        echo "Paard bestaat niet";
-    }
-
     $horses = getAllHorse();
     $ponys = getAllPony();
 ?>
 
 <h1>Paarden beheren</h1>
-<a href="<?=URL?>horse/openForm">Toevoegen</a>
+<a href="<?=URL?>horse/openForm">Paard toevoegen</a>
 <table class="table">
     <thead>
         <tr>
@@ -33,8 +24,10 @@
             <td><?=$horse["horse_breed"]?></td>
             <td><?=$horse["horse_age"]?></td>
 			<td><?=$horse["jump"]?></td>
-			<td><a href="/horse/update/1">Wijzigen</a> / </td> 
-            <!-- <a href="/horse/delete/1">Verwijderen</a></td> -->
+
+            <td><form action="<?=URL?>horse/editForm?id=<?= $horse["id"]?>"  method="post">
+                <button class="btn btn-primary btn-sm" type="submit" name="Edit" value="Edit">Wijzigen</button>
+            </form></td>
 
             <td><form action="<?=URL?>horse/openDelete?id=<?= $horse["id"]?>" method="post">
             <button class="btn btn-primary btn-sm" type="submit" name="Delete" value="Delete">Verwijderen</button>
@@ -50,7 +43,7 @@
 <br>
 
 <h1>Pony's beheren</h1>
-<a href="<?=URL?>horse/openForm2">Toevoegen</a>
+<a href="<?=URL?>horse/openForm2">Pony toevoegen</a>
 <table class="table">
     <thead>
         <tr>
@@ -70,7 +63,15 @@
             <td><?=$pony["pony_breed"]?></td>
             <td><?=$pony["pony_age"]?></td>
 			<td><?=$pony["height"]?></td>
-			<td><a href="/horse/updatePony/1">Wijzigen</a> / <a href="/horse/deletePony/1">Verwijderen</a></td>
+			
+            <td><form action="<?=URL?>horse/editForm2?id=<?= $pony["id"]?>"  method="post">
+                <button class="btn btn-primary btn-sm" type="submit" name="Edit" value="Edit">Wijzigen</button>
+            </form></td>
+
+            <td><form action="<?=URL?>horse/openDelete2?id=<?= $pony["id"]?>" method="post">
+            <button class="btn btn-primary btn-sm" type="submit" name="Delete" value="Delete">Verwijderen</button>
+            </form></td>
+
         </tr>
         <?php
             }

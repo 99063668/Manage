@@ -1,6 +1,6 @@
 <?php
-//Functions voor de horse page
-	//haalt 1 paard/pony op uit de database
+ //--------------------------------------------Common functions----------------------------------------------
+	//haalt alles van 1 table op uit de database
 	function getTable($table, $id){
 		$conn = openDatabaseConnection();
 
@@ -48,7 +48,63 @@
 		return $result;
 	}
 
-	//Voegt een paard toe aan de database
+    //Haalt alle reserveringen op uit de databse
+    function getAllGuest(){
+		try {
+			$conn=openDatabaseConnection();
+			$stmt = $conn->prepare("SELECT * FROM reservering");
+			$stmt->execute();
+			$result = $stmt->fetchAll();
+	
+		}
+		catch(PDOException $e){
+			echo "Connection failed: " . $e->getMessage();
+		}
+		$conn = null;
+		return $result;
+	}
+
+    //Haalt alle guest op uit de database
+    function AllGuest(){
+		try {
+			$conn=openDatabaseConnection();
+			$stmt = $conn->prepare("SELECT * FROM guest");
+			$stmt->execute();
+			$result = $stmt->fetchAll();
+	
+		}
+		catch(PDOException $e){
+			echo "Connection failed: " . $e->getMessage();
+		}
+		$conn = null;
+		return $result;
+	}
+
+     //Check if array is true
+     function checkArrayExist($array, $keys = array("horse_name", "horse_breed", "horse_age", "jump")){
+        $allExist = true;
+        foreach ($keys as $entry) {
+            if(!isset($array[$entry]) || empty($array[$entry])){
+                $allExist = false;
+                break;
+            }
+        }
+        return $allExist;
+    }
+
+     //Count price
+     function optellenPrijs($animalPrice, $ridePrice){
+        $animalPrice = 55;
+        $ridePrice = intval($times);
+
+        if(!empty($animalPrice) && !empty($ridePrice) && is_numeric($animalPrice) && is_numeric($ridePrice)){
+            $price = $animalPrice * $ridePrice;
+            return $price;
+        }
+    }
+
+    //--------------------------------------------Add functions----------------------------------------------
+    //Voegt een paard toe aan de database
 	function addHorse($data){
         $conn = openDatabaseConnection();
         $allExist = checkArrayExist($data);
@@ -100,62 +156,178 @@
         }
     }
 
-       // Verwijderd 1 paard uit de database
-       function deleteHorse($id){
-            $conn = openDatabaseConnection();
-            $id = intval($id);
-            $check = getTable("horse", $id);
+    //Voegt een bezoeker toe aan de database
+	function addHome($data){
+        $conn = openDatabaseConnection();
+        $allExist = checkArrayExist($data, $keys = array("name", "adres", "phone", "numbers"));
 
-            if (!empty($id) && isset($id) && is_numeric($id) && !empty($check) && isset($check)){
+        if(!empty($data) && isset($data)){
+            if ($allExist) {
                 try {
-                    $stmt = $conn->prepare("DELETE FROM horse WHERE id = :id");
-                    $stmt->bindParam(":id", $id);
+                    $stmt = $conn->prepare("INSERT INTO guest(name, adres, phone, numbers) VALUES (:name, :adres, :phone, :numbers)");
+                    $stmt->bindParam(":name", $data["name"]);
+                    $stmt->bindParam(":adres", $data["adres"]);
+                    $stmt->bindParam(":phone", $data["phone"]);
+                    $stmt->bindParam(":numbers", $data["numbers"]);
                     $stmt->execute();
                 }
                 catch(PDOException $e){
                     echo "Connection failed: " . $e->getMessage();
-                }   
-            } 
+                }
+            } else{
+                echo "bij het invoegen in de database was niet alle data beschikbaar";
+            }
+        }else{
+            echo "error empty post guest bij function controle home.";
         }
+    }
 
-        // Verwijderd 1 pony uit de database
-       function deletePony($id){
-            $conn = openDatabaseConnection();
-            $id = intval($id);
-            $check = getTable("pony", $id);
+   //Voegt een reservering toe aan de database
+   function addReservering($data){
+    $conn = openDatabaseConnection();
+    $allExist = checkArrayExist($data, $keys = array("guest_name", "times", "horse", "price"));
 
-            if (!empty($id) && isset($id) && is_numeric($id) && !empty($check) && isset($check)){
+        if(!empty($data) && isset($data)){
+            if ($allExist) {
                 try {
-                    $stmt = $conn->prepare("DELETE FROM pony WHERE id = :id");
-                    $stmt->bindParam(":id", $id);
+                    $stmt = $conn->prepare("INSERT INTO reservering(guest_name, times, horse, price) VALUES (:guest_name, :times, :horse, :price)");
+                    $stmt->bindParam(":guest_name", $data["guest_name"]);
+                    $stmt->bindParam(":times", $data["times"]);
+                    $stmt->bindParam(":horse", $data["horse"]);
+                    $stmt->bindParam(":price", $data["price"]);
                     $stmt->execute();
                 }
                 catch(PDOException $e){
                     echo "Connection failed: " . $e->getMessage();
-                }   
-            } 
-        }
-
-        // Verwijderd 1 reservering uit de database
-       function deleteGuest($id){
-            $conn = openDatabaseConnection();
-            $id = intval($id);
-            $check = getTable("reservering", $id);
-
-            if (!empty($id) && isset($id) && is_numeric($id) && !empty($check) && isset($check)){
-                try {
-                    $stmt = $conn->prepare("DELETE FROM reservering WHERE id = :id");
-                    $stmt->bindParam(":id", $id);
-                    $stmt->execute();
                 }
-                catch(PDOException $e){
-                    echo "Connection failed: " . $e->getMessage();
-                }   
-            } 
+            } else{
+                echo "bij het invoegen in de database was niet alle data beschikbaar";
+            }
+        }else{
+            echo "error empty post reservering bij function controle reservering.";
         }
+    }
 
-        // Verwijderd 1 guest uit de database
-       function deleteHome($id){
+    //--------------------------------------------Update functions--------------------------------------------
+     //Edit een paard uit de database
+     function editHorse($data){
+        $conn = openDatabaseConnection();
+        $data["id"] = intval($data["id"]);
+        $check = getTable("horse", $data["id"]);;
+       
+        if(!empty($data["id"]) && isset($data["id"]) && is_numeric($data["id"]) && !empty($check) && isset($check)){
+            $query = $conn->prepare("UPDATE horse SET horse_age=:horse_age, jump=:jump  WHERE id=:id");
+            $query->bindParam(":horse_age",  $data["horse_age"]);
+            $query->bindParam(":jump",  $data["jump"]);
+            $query->bindParam(":id", $data["id"]);
+            $query->execute(); 
+        }  
+    }
+
+    //Edit een pony uit de database
+        function editPony($data){
+        $conn = openDatabaseConnection();
+        $data["id"] = intval($data["id"]);
+        $check = getTable("pony", $data["id"]);;
+        
+        if(!empty($data["id"]) && isset($data["id"]) && is_numeric($data["id"]) && !empty($check) && isset($check)){
+            $query = $conn->prepare("UPDATE pony SET pony_age=:pony_age, height=:height  WHERE id=:id");
+            $query->bindParam(":pony_age",  $data["pony_age"]);
+            $query->bindParam(":height",  $data["height"]);
+            $query->bindParam(":id", $data["id"]);
+            $query->execute(); 
+        }  
+    }
+
+    //Edit een reservering uit de database
+    function editReservering($data){
+        $conn = openDatabaseConnection();
+        $data["id"] = intval($data["id"]);
+        $check = getTable("reservering", $data["id"]);
+    
+        if(!empty($data["id"]) && isset($data["id"]) && is_numeric($data["id"]) && !empty($check) && isset($check)){
+            $query = $conn->prepare("UPDATE reservering SET times=:times, horse=:horse WHERE id=:id");
+            $query->bindParam(":times",  $data["times"]);
+            $query->bindParam(":horse",  $data["horse"]);
+            $query->bindParam(":id", $data["id"]);
+            $query->execute(); 
+        }  
+    }
+
+    //Edit een guest uit de database
+    function editGuest($data){
+        $conn = openDatabaseConnection();
+        $data["id"] = intval($data["id"]);
+        $check = getTable("guest", $data["id"]);
+        
+        var_dump($data);
+
+        if(!empty($data["id"]) && isset($data["id"]) && is_numeric($data["id"]) && !empty($check) && isset($check)){
+            $query = $conn->prepare("UPDATE guest SET adres=:adres, phone=:phone WHERE id=:id");
+            $query->bindParam(":adres",  $data["adres"]);
+            $query->bindParam(":phone",  $data["phone"]);
+            $query->bindParam(":id", $data["id"]);
+            $query->execute(); 
+        }  
+    }
+
+    //--------------------------------------------Delete functions--------------------------------------------
+    // Verwijderd 1 paard uit de database
+     function deleteHorse($id){
+        $conn = openDatabaseConnection();
+        $id = intval($id);
+        $check = getTable("horse", $id);
+
+        if (!empty($id) && isset($id) && is_numeric($id) && !empty($check) && isset($check)){
+            try {
+                $stmt = $conn->prepare("DELETE FROM horse WHERE id = :id");
+                $stmt->bindParam(":id", $id);
+                $stmt->execute();
+            }
+            catch(PDOException $e){
+                echo "Connection failed: " . $e->getMessage();
+            }   
+        } 
+    }
+
+    // Verwijderd 1 pony uit de database
+   function deletePony($id){
+        $conn = openDatabaseConnection();
+        $id = intval($id);
+        $check = getTable("pony", $id);
+
+        if (!empty($id) && isset($id) && is_numeric($id) && !empty($check) && isset($check)){
+            try {
+                $stmt = $conn->prepare("DELETE FROM pony WHERE id = :id");
+                $stmt->bindParam(":id", $id);
+                $stmt->execute();
+            }
+            catch(PDOException $e){
+                echo "Connection failed: " . $e->getMessage();
+            }   
+        } 
+    }
+
+    // Verwijderd 1 reservering uit de database
+   function deleteGuest($id){
+        $conn = openDatabaseConnection();
+        $id = intval($id);
+        $check = getTable("reservering", $id);
+
+        if (!empty($id) && isset($id) && is_numeric($id) && !empty($check) && isset($check)){
+            try {
+                $stmt = $conn->prepare("DELETE FROM reservering WHERE id = :id");
+                $stmt->bindParam(":id", $id);
+                $stmt->execute();
+            }
+            catch(PDOException $e){
+                echo "Connection failed: " . $e->getMessage();
+            }   
+        } 
+    }
+
+    // Verwijderd 1 guest uit de database
+    function deleteHome($id){
         $conn = openDatabaseConnection();
         $id = intval($id);
         $check = getTable("guest", $id);
@@ -172,37 +344,8 @@
         } 
     }
 
-        //Edit een paard uit de database
-        function editHorse($data){
-            $conn = openDatabaseConnection();
-            $data["id"] = intval($data["id"]);
-            $check = getTable("horse", $data["id"]);;
-           
-            if(!empty($data["id"]) && isset($data["id"]) && is_numeric($data["id"]) && !empty($check) && isset($check)){
-                $query = $conn->prepare("UPDATE horse SET horse_age=:horse_age, jump=:jump  WHERE id=:id");
-                $query->bindParam(":horse_age",  $data["horse_age"]);
-                $query->bindParam(":jump",  $data["jump"]);
-                $query->bindParam(":id", $data["id"]);
-                $query->execute(); 
-            }  
-        }
-
-         //Edit een pony uit de database
-         function editPony($data){
-            $conn = openDatabaseConnection();
-            $data["id"] = intval($data["id"]);
-            $check = getTable("pony", $data["id"]);;
-           
-            if(!empty($data["id"]) && isset($data["id"]) && is_numeric($data["id"]) && !empty($check) && isset($check)){
-                $query = $conn->prepare("UPDATE pony SET pony_age=:pony_age, height=:height  WHERE id=:id");
-                $query->bindParam(":pony_age",  $data["pony_age"]);
-                $query->bindParam(":height",  $data["height"]);
-                $query->bindParam(":id", $data["id"]);
-                $query->execute(); 
-            }  
-        }
-
-	//Controlleert de input van paarden
+    //--------------------------------------------Controle functions--------------------------------------------
+    //Controle de input van paarden
 	function controle(){
         $data = [];
 
@@ -304,146 +447,56 @@
         return $data;
     }
 
-	 //Controleert de input op verboden characters
-     function trimdata($data){
-        $data = trim($data);
-        $data = stripslashes($data);
-        $data = htmlspecialchars($data);
+    //Controlleert de input van reserveringen
+	function controle3(){
+        $data = [];
+
+        if(!empty($_POST["id"])){
+            $id = trimdata($_POST["id"]);
+            if(empty($_POST["id"])){
+                echo("Er is geen id meegegeven!");
+            }else{
+                $data["id"] = $id;
+            }
+        }
+
+        if(!empty($_POST["guest_name"])){
+            $guest_name = trimdata($_POST["guest_name"]);
+            if(!preg_match("/^[a-zA-Z-' ]*$/", $guest_name)){
+                echo("Alleen letters en spaties zijn toegestaan!");
+            }else{
+                $data["guest_name"] = $guest_name;
+            }
+        }
+
+        if(!empty($_POST["times"])){
+            $times = trimdata($_POST["times"]);
+            if(!preg_match("/^(?:2[0-3]|[01][0-9]):[0-5][0-9]$/", $times)){
+                echo("Alleen letters en spaties zijn toegestaan!");
+            }else{
+                $data["times"] = $times;
+            }
+        }
+		
+		if(!empty($_POST["horse"])){
+            $horse = trimdata($_POST["horse"]);
+            if(!preg_match("/^[a-zA-Z-' , ]*$/", $horse)){
+                echo("Alleen letters en spaties zijn toegestaan!");
+            }else{
+                $data["horse"] = $horse;
+            }
+        }
+
+		if(!empty($_POST["price"])){
+            $price = trimdata($_POST["price"]);
+            if(!preg_match("/[0-9]/", $price)){
+                echo("Alleen cijfers zijn toegestaan!");
+            }else{
+                $data["price"] = $price;
+            }
+        }
         return $data;
     }
-
-   //..
-    function checkArrayExist($array, $keys = array("horse_name", "horse_breed", "horse_age", "jump")){
-        $allExist = true;
-        foreach ($keys as $entry) {
-            if(!isset($array[$entry]) || empty($array[$entry])){
-                $allExist = false;
-                break;
-            }
-        }
-        return $allExist;
-    }
-
-
-//Functions voor de guest + home page
-//Haalt alle reserveringen op uit de databse
-    function getAllGuest(){
-		try {
-			$conn=openDatabaseConnection();
-			$stmt = $conn->prepare("SELECT * FROM reservering");
-			$stmt->execute();
-			$result = $stmt->fetchAll();
-	
-		}
-		catch(PDOException $e){
-			echo "Connection failed: " . $e->getMessage();
-		}
-		$conn = null;
-		return $result;
-	}
-
-    //Haalt alle guest op uit de database
-    function AllGuest(){
-		try {
-			$conn=openDatabaseConnection();
-			$stmt = $conn->prepare("SELECT * FROM guest");
-			$stmt->execute();
-			$result = $stmt->fetchAll();
-	
-		}
-		catch(PDOException $e){
-			echo "Connection failed: " . $e->getMessage();
-		}
-		$conn = null;
-		return $result;
-	}
-
-    //Voegt een reservering toe aan de database
-	function addReservering($data){
-        $conn = openDatabaseConnection();
-        $allExist = checkArrayExist($data, $keys = array("guest_name", "times", "horse", "price"));
-
-        if(!empty($data) && isset($data)){
-            if ($allExist) {
-                try {
-                    $stmt = $conn->prepare("INSERT INTO reservering(guest_name, times, horse, price) VALUES (:guest_name, :times, :horse, :price)");
-                    $stmt->bindParam(":guest_name", $data["guest_name"]);
-                    $stmt->bindParam(":times", $data["times"]);
-                    $stmt->bindParam(":horse", $data["horse"]);
-                    $stmt->bindParam(":price", $data["price"]);
-                    $stmt->execute();
-                }
-                catch(PDOException $e){
-                    echo "Connection failed: " . $e->getMessage();
-                }
-            } else{
-                echo "bij het invoegen in de database was niet alle data beschikbaar";
-            }
-        }else{
-            echo "error empty post reservering bij function controle reservering.";
-        }
-    }
-
-     //Edit een reservering uit de database
-     function editReservering($data){
-        $conn = openDatabaseConnection();
-        $data["id"] = intval($data["id"]);
-        $check = getTable("reservering", $data["id"]);
-       
-        if(!empty($data["id"]) && isset($data["id"]) && is_numeric($data["id"]) && !empty($check) && isset($check)){
-            $query = $conn->prepare("UPDATE reservering SET times=:times, horse=:horse WHERE id=:id");
-            $query->bindParam(":times",  $data["times"]);
-            $query->bindParam(":horse",  $data["horse"]);
-            $query->bindParam(":id", $data["id"]);
-            $query->execute(); 
-        }  
-    }
-
-     //Edit een guest uit de database
-     function editGuest($data){
-        $conn = openDatabaseConnection();
-        $data["id"] = intval($data["id"]);
-        $check = getTable("guest", $data["id"]);
-        
-        var_dump($data);
-
-        if(!empty($data["id"]) && isset($data["id"]) && is_numeric($data["id"]) && !empty($check) && isset($check)){
-            $query = $conn->prepare("UPDATE guest SET adres=:adres, phone=:phone WHERE id=:id");
-            $query->bindParam(":adres",  $data["adres"]);
-            $query->bindParam(":phone",  $data["phone"]);
-            $query->bindParam(":id", $data["id"]);
-            $query->execute(); 
-        }  
-    }
-
-
-
-    //Voegt een beszoeker toe aan de database
-	function addHome($data){
-        $conn = openDatabaseConnection();
-        $allExist = checkArrayExist($data, $keys = array("name", "adres", "phone", "numbers"));
-
-        if(!empty($data) && isset($data)){
-            if ($allExist) {
-                try {
-                    $stmt = $conn->prepare("INSERT INTO guest(name, adres, phone, numbers) VALUES (:name, :adres, :phone, :numbers)");
-                    $stmt->bindParam(":name", $data["name"]);
-                    $stmt->bindParam(":adres", $data["adres"]);
-                    $stmt->bindParam(":phone", $data["phone"]);
-                    $stmt->bindParam(":numbers", $data["numbers"]);
-                    $stmt->execute();
-                }
-                catch(PDOException $e){
-                    echo "Connection failed: " . $e->getMessage();
-                }
-            } else{
-                echo "bij het invoegen in de database was niet alle data beschikbaar";
-            }
-        }else{
-            echo "error empty post guest bij function controle home.";
-        }
-    }
-
 
     //Controlleert de input van guest
 	function controle4(){
@@ -488,7 +541,7 @@
 		if(!empty($_POST["numbers"])){
             $numbers = trimdata($_POST["numbers"]);
             if(!preg_match("/[0-9]/", $numbers)){
-                echo("Alleen nummers zijn toegestaan!");
+                echo("Alleen nummers zijn toegestaan!"); 
             }else{
                 $data["numbers"] = $numbers;
             }
@@ -496,56 +549,11 @@
         return $data;
     }
 
-     //Controlleert de input van reserveringen
-	function controle3(){
-        $data = [];
-
-        if(!empty($_POST["guest_name"])){
-            $guest_name = trimdata($_POST["guest_name"]);
-            if(!preg_match("/^[a-zA-Z-' ]*$/", $guest_name)){
-                echo("Alleen letters en spaties zijn toegestaan!");
-            }else{
-                $data["guest_name"] = $guest_name;
-            }
-        }
-
-        if(!empty($_POST["times"])){
-            $times = trimdata($_POST["times"]);
-            if(!preg_match("/^(?:2[0-3]|[01][0-9]):[0-5][0-9]$/", $times)){
-                echo("Alleen letters en spaties zijn toegestaan!");
-            }else{
-                $data["times"] = $times;
-            }
-        }
-		
-		if(!empty($_POST["horse"])){
-            $horse = trimdata($_POST["horse"]);
-            if(!preg_match("/^[a-zA-Z-' , ]*$/", $horse)){
-                echo("Alleen letters en spaties zijn toegestaan!");
-            }else{
-                $data["horse"] = $horse;
-            }
-        }
-
-		if(!empty($_POST["price"])){
-            $price = trimdata($_POST["price"]);
-            if(!preg_match("/[0-9]/", $price)){
-                echo("Alleen cijfers zijn toegestaan!");
-            }else{
-                $data["price"] = $price;
-            }
-        }
+     //Controleert de input op verboden characters
+     function trimdata($data){
+        $data = trim($data);
+        $data = stripslashes($data);
+        $data = htmlspecialchars($data);
         return $data;
     }
-
-     //Telt de game prijs bij elkaar op
-    //  function optellenPrijs($prijs1, $prijs2){
-    //     $prijs1 = intval($prijs1);
-    //     $prijs2 = intval($prijs2);
-
-    //     if(!empty($prijs1) && !empty($prijs2) && is_numeric($prijs1) && is_numeric($prijs2)){
-    //         $duration_game = $prijs1 + $prijs2;
-    //         return $price;
-    //     }
-    // }
 ?>

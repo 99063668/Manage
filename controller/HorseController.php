@@ -20,10 +20,15 @@
 
     //Laad de add function in
     function addHorses() {
+        $errors = [];
         if($_SERVER["REQUEST_METHOD"] == "POST"){
-            $data = controle();
-            addHorse($data);
-            index();
+            $data = controle($errors);
+            if(empty($errors)) {
+                addHorse($data);
+                index();
+            }else{
+                render("horse/add", ["errors" => $errors, "data" => $data]);
+            }
         }
     }
 

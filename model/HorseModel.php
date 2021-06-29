@@ -81,7 +81,7 @@
 	}
 
      //Check if array is true
-     function checkArrayExist($array, $keys = array("horse_name", "horse_breed", "horse_age", "jump")){
+    function checkArrayExist($array, $keys = array("horse_name", "horse_breed", "horse_age", "jump")){
         $allExist = true;
         foreach ($keys as $entry) {
             if(!isset($array[$entry]) || empty($array[$entry])){
@@ -93,12 +93,12 @@
     }
 
      //Count price
-     function optellenPrijs($animalPrice, $ridePrice){
+    function optellenPrijs($animalPrice, $amountHorse){
         $animalPrice = 55;
-        $ridePrice = intval($times);
+        $amountHorse = intval($horse);
 
-        if(!empty($animalPrice) && !empty($ridePrice) && is_numeric($animalPrice) && is_numeric($ridePrice)){
-            $price = $animalPrice * $ridePrice;
+        if(!empty($amountHorse) && is_numeric($amountHorse)){
+            $price = $animalPrice * $amountHorse;
             return $price;
         }
     }
@@ -185,16 +185,15 @@
    //Voegt een reservering toe aan de database
    function addReservering($data){
     $conn = openDatabaseConnection();
-    $allExist = checkArrayExist($data, $keys = array("guest_name", "times", "horse", "price"));
+    $allExist = checkArrayExist($data, $keys = array("guest_name", "times", "horse"));
 
         if(!empty($data) && isset($data)){
             if ($allExist) {
                 try {
-                    $stmt = $conn->prepare("INSERT INTO reservering(guest_name, times, horse, price) VALUES (:guest_name, :times, :horse, :price)");
+                    $stmt = $conn->prepare("INSERT INTO reservering(guest_name, times, horse) VALUES (:guest_name, :times, :horse)");
                     $stmt->bindParam(":guest_name", $data["guest_name"]);
                     $stmt->bindParam(":times", $data["times"]);
                     $stmt->bindParam(":horse", $data["horse"]);
-                    $stmt->bindParam(":price", $data["price"]);
                     $stmt->execute();
                 }
                 catch(PDOException $e){
@@ -346,7 +345,7 @@
 
     //--------------------------------------------Controle functions--------------------------------------------
     //Controle de input van paarden
-	function controle(){
+	function controle(&$errors){
         $data = [];
 
         if(!empty($_POST["id"])){
@@ -361,7 +360,7 @@
         if(!empty($_POST["horse_name"])){
             $horse_name = trimdata($_POST["horse_name"]);
             if(!preg_match("/^[a-zA-Z-' ]*$/", $horse_name)){
-                echo("Alleen letters en spaties zijn toegestaan!");
+                $errors["horse_name"] = "Alleen letters en spaties zijn toegestaan!";
             }else{
                 $data["horse_name"] = $horse_name;
             }
@@ -370,7 +369,7 @@
         if(!empty($_POST["horse_breed"])){
             $horse_breed = trimdata($_POST["horse_breed"]);
             if(!preg_match("/^[a-zA-Z-' , ]*$/", $horse_breed)){
-                echo("Alleen letters en spaties zijn toegestaan!");
+                $errors["horse_breed"] = "Alleen letters en spaties zijn toegestaan!";
             }else{
                 $data["horse_breed"] = $horse_breed;
             }
@@ -379,7 +378,7 @@
 		if(!empty($_POST["horse_age"])){
             $horse_age = trimdata($_POST["horse_age"]);
             if(!preg_match("/[0-9]/", $horse_age)){
-                echo("Alleen cijfers zijn toegestaan!");
+                $errors["horse_age"] = "Alleen letters en spaties zijn toegestaan!";
             }else{
                 $data["horse_age"] = $horse_age;
             }
@@ -387,14 +386,16 @@
 
 		if(!empty($_POST["jump"])){
             $jump = trimdata($_POST["jump"]);
-            if(!preg_match("/^[a-zA-Z-' , ]*$/", $jump)){
-                echo("Alleen letters en spaties zijn toegestaan!");
-            }else{
+            if($_POST["jump"] =="ja" || $_POST["jump"] =="nee"){
                 $data["jump"] = $jump;
+            }else{
+               $errors["jump"] = "Alleen ja/nee toegestaan!";
             }
         }
         return $data;
     }
+    //$_POST["jump"] !="ja" || !="nee" && 
+    
 
     //Controlleert de input van pony's
 	function controle2(){

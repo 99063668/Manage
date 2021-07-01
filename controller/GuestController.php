@@ -48,7 +48,7 @@
     //laad de edit function
     function editReserverings(){
         if(!empty($_POST["SubmitBtn2"])) {
-        $data = controle();
+        $data = controle3();
         editReservering($data);
         index();
         }

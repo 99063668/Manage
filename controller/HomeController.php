@@ -10,13 +10,30 @@
      function openForm() {
         render("home/add");
     }
+    function addHorses() {
+        $errors = [];
+        if($_SERVER["REQUEST_METHOD"] == "POST"){
+            $data = controle($errors);
+            if(empty($errors)) {
+                addHorse($data);
+                index();
+            }else{
+                render("horse/add", ["errors" => $errors, "data" => $data]);
+            }
+        }
+    }
 
     //Laad de add function in
     function addHomes() {
+        $errors = [];
         if($_SERVER["REQUEST_METHOD"] == "POST"){
             $data = controle4();
-            addHome($data);
-            index();
+            if(empty($errors)) {
+                addHome($data);
+                index();
+            }else{
+                render("home/add", ["errors" => $errors, "data" => $data]);
+            }
         }
     }
 

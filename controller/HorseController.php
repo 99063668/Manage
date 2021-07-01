@@ -39,10 +39,15 @@
 
     //Laad de add function voor pony's in
     function addPonys() {
+        $error = [];
         if($_SERVER["REQUEST_METHOD"] == "POST"){
-            $data = controle2();
-            addPony($data);
-            index();
+            $data2 = controle2($error);
+            if(empty($error)){
+                addPony($data2);
+                index();
+            }else{
+                render("horse/addPony", ["error" => $error, "data2" => $data2]);
+            }
         }
     }
 
@@ -88,13 +93,18 @@
     function editForm() {
         render("horse/update");
     }
-    
+
     //laad de edit function
     function editHorses(){
+        $errors = [];
         if(!empty($_POST["SubmitBtn2"])) {
-        $data = controle();
-        editHorse($data);
-        index();
+            $data = controle($errors);
+            if(empty($errors)) {
+                editHorse($data);
+                index();
+            }else{
+                render("horse/edit", ["errors" => $errors, "data" => $data]);
+            }
         }
     }
 

@@ -159,16 +159,16 @@
     //Voegt een bezoeker toe aan de database
 	function addHome($data){
         $conn = openDatabaseConnection();
-        $allExist = checkArrayExist($data, $keys = array("name", "adres", "phone", "numbers"));
+        $allExist = checkArrayExist($data, $keys = array("name", "adres", "phone"));
 
         if(!empty($data) && isset($data)){
             if ($allExist) {
                 try {
-                    $stmt = $conn->prepare("INSERT INTO guest(name, adres, phone, numbers) VALUES (:name, :adres, :phone, :numbers)");
+                    $stmt = $conn->prepare("INSERT INTO guest(name, adres, phone) VALUES (:name, :adres, :phone)");
                     $stmt->bindParam(":name", $data["name"]);
                     $stmt->bindParam(":adres", $data["adres"]);
                     $stmt->bindParam(":phone", $data["phone"]);
-                    $stmt->bindParam(":numbers", $data["numbers"]);
+                    // $stmt->bindParam(":numbers", $data["numbers"]);
                     $stmt->execute();
                 }
                 catch(PDOException $e){
@@ -503,14 +503,14 @@
 	function controle4(){
         $data = [];
         
-        if(!empty($_POST["id"])){
-            $id = trimdata($_POST["id"]);
-            if(empty($_POST["id"])){
-                echo("Er is geen id meegegeven!");
-            }else{
-                $data["id"] = $id;
-            }
-        }
+        // if(!empty($_POST["id"])){
+        //     $id = trimdata($_POST["id"]);
+        //     if(empty($_POST["id"])){
+        //         echo("Er is geen id meegegeven!");
+        //     }else{
+        //         $data["id"] = $id;
+        //     }
+        // }
 
         if(!empty($_POST["name"])){
             $name = trimdata($_POST["name"]);
